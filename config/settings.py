@@ -1,8 +1,9 @@
 from pathlib import Path
+import os
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-SECRET_KEY = 'django-insecure-blog-cache-demo-key'
+SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-blog-cache-demo-key')
 
 DEBUG = True
 
@@ -16,7 +17,12 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
+    'rest_framework_simplejwt',
+    'django_filters',
     'blog',
+    'merchants',
+    'financing',
+    'alerts',
 ]
 
 MIDDLEWARE = [
@@ -41,12 +47,18 @@ TEMPLATES = [{'BACKEND': 'django.template.backends.django.DjangoTemplates',
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': os.environ.get('DB_NAME', 'blogdb'),
+        'USER': os.environ.get('DB_USER', 'esther'),
+        'PASSWORD': os.environ.get('DB_PASSWORD', '1234'),
+        'HOST': os.environ.get('DB_HOST', 'localhost'),
+        'PORT': os.environ.get('DB_PORT', '5432'),
     }
 }
 
 # ✅ Step 1: In-memory cache (Level 1 setup)
+CACHE_TTL = 60
+
 CACHES = {
     'default': {
         'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
@@ -56,3 +68,11 @@ CACHES = {
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 STATIC_URL = '/static/'
+
+REST_FRAMEWORK = {
+    'DEFAULT_FILTER_BACKENDS': [
+        'django_filters.rest_framework.DjangoFilterBackend'
+    ],
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
+    'PAGE_SIZE': 5,
+}

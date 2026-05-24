@@ -1,13 +1,17 @@
 from django.core.cache import cache
+from django.conf import settings
+from django.utils.decorators import method_decorator
+from django.views.decorators.cache import cache_page
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from .models import Post
 
-CACHE_TTL = 60  # seconds
+CACHE_TTL = settings.CACHE_TTL
 
 
 # 🟢 Level 1 & 2: Basic + Granular Cache
+@method_decorator(cache_page(60), name='dispatch')
 class PostList(APIView):
     def get(self, request):
         data = cache.get('all_posts')
